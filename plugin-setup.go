@@ -12,15 +12,19 @@ func init() {
 
 func setup(c *caddy.Controller) error {
 
+	Logger.Debug("Starting plugin setup...")
+
 	rawCfg, err := parseConfig(c)
 	if err != nil {
 		return plugin.Error(PluginName, err)
 	}
 
-	coreDNSDockerPlugin, err := NewCoreDNSDockerPlugin(rawCfg)
+	coreDNSDockerPlugin, err := NewPlugin(rawCfg)
 	if err != nil {
 		return plugin.Error(PluginName, err)
 	}
+
+	Logger.Debug("Registering plugin with CoreDNS...")
 
 	dnsserver.GetConfig(c).AddPlugin(coreDNSDockerPlugin.Register)
 
@@ -30,9 +34,6 @@ func setup(c *caddy.Controller) error {
 func parseConfig(c *caddy.Controller) (map[string][]string, error) {
 	var configMap = make(map[string][]string)
 	for c.Next() {
-		if c.NextArg() {
-			return nil, c.ArgErr()
-		}
 		for c.NextBlock() {
 			configMap[c.Val()] = c.RemainingArgs()
 		}

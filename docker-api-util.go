@@ -13,7 +13,10 @@ type DockerApiUtil struct {
 }
 
 func NewDockerService() (*DockerApiUtil, error) {
-	api, err := client.New(client.FromEnv) // todo: verify this is a good default
+
+	Logger.Debug("Initializing Docker API client...")
+
+	api, err := client.New(client.FromEnv)
 	if err != nil {
 		return nil, err
 	}

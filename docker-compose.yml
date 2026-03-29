@@ -1,0 +1,53 @@
+services:
+  coredns:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: coredns-docker:local
+    container_name: coredns-docker
+    environment:
+      DOCKER_HOST: unix:///var/run/docker.sock
+    ports:
+      - "53:53/udp"
+      - "53:53/tcp"
+    volumes:
+      - ./Corefile:/Corefile:ro
+      - /var/run/docker.sock:/var/run/docker.sock
+    depends_on:
+      - demo-app
+    networks:
+      dnsnet:
+        ipv4_address: 172.29.0.53
+
+  demo-app:
+    image: nginx:alpine
+    container_name: coredns-demo-app
+    labels:
+      coredns-docker.main.hostname: record.a
+      coredns-docker.main.a: 172.29.0.10
+      coredns-docker.main.ttl: 30
+
+      coredns-docker.mainv.hostname: record.aaaa
+      coredns-docker.mainv.aaaa: 2001:0db8:85a3:0000:0000:8a2e:0370:7334
+      coredns-docker.mainv.ttl: 30
+
+      coredns-docker.maind.hostname: record.aaaaa
+      coredns-docker.maind.a: 1.1.1.2
+      coredns-docker.maind.aaaa: 2001:0db8:85a3:0000:0000:8a2e:0370:7334
+      coredns-docker.maind.ttl: 30
+
+      coredns-docker.maindx.hostname: record.acname
+      coredns-docker.maindx.a: 2.2.2.2
+      coredns-docker.maindx.cname: fun.example.com
+      coredns-docker.maindx.ttl: 30
+    networks:
+      dnsnet:
+        ipv4_address: 172.29.0.10
+
+networks:
+  dnsnet:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.29.0.0/24
+

@@ -1,0 +1,13 @@
+.:53 {
+    errors
+    log
+    debug
+    health
+    ready
+
+    coredns-docker {
+        update-interval 10s
+        default-ttl 30
+    }
+
+}
