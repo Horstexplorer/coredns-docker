@@ -1,4 +1,4 @@
-package coredns_docker
+package docker
 
 import (
 	"github.com/coredns/caddy"

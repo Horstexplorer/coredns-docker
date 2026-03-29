@@ -1,6 +1,7 @@
-package coredns_docker
+package docker
 
 import (
+	"errors"
 	"fmt"
 	"regexp"
 	"strconv"
@@ -23,34 +24,34 @@ type DNSLabelGroup struct {
 	TTL        uint32
 }
 
-func (instance *DNSLabelGroup) isValid() error {
-	if instance.Hostname == "" {
-		return fmt.Errorf("hostname is required")
+func (r *DNSLabelGroup) isValid() error {
+	if r.Hostname == "" {
+		return errors.New("hostname is required")
 	}
-	if instance.AValue == "" && instance.AAAAValue == "" && instance.CNAMEValue == "" {
-		return fmt.Errorf("a value, aaaa value, or cname value is required")
+	if r.AValue == "" && r.AAAAValue == "" && r.CNAMEValue == "" {
+		return errors.New("a value, aaaa value, or cname value is required")
 	}
-	if instance.TTL < 0 {
-		return fmt.Errorf("ttl cannot be negative")
+	if r.TTL < 0 {
+		return errors.New("ttl cannot be negative")
 	}
 	return nil
 }
 
-func (instance *DNSLabelGroup) toDNSRecords() ([]dns.RR, error) {
+func (r *DNSLabelGroup) toDNSRecords() ([]dns.RR, error) {
 	var records []dns.RR
 
-	if err := instance.isValid(); err != nil {
+	if err := r.isValid(); err != nil {
 		return nil, err
 	}
 
-	if instance.AValue != "" {
-		records = append(records, ARecord(instance.Hostname, instance.TTL, instance.AValue))
+	if r.AValue != "" {
+		records = append(records, ARecord(r.Hostname, r.TTL, r.AValue))
 	}
-	if instance.AAAAValue != "" {
-		records = append(records, AAAARecord(instance.Hostname, instance.TTL, instance.AAAAValue))
+	if r.AAAAValue != "" {
+		records = append(records, AAAARecord(r.Hostname, r.TTL, r.AAAAValue))
 	}
-	if instance.CNAMEValue != "" {
-		records = append(records, CNAMERecord(instance.Hostname, instance.TTL, instance.CNAMEValue))
+	if r.CNAMEValue != "" {
+		records = append(records, CNAMERecord(r.Hostname, r.TTL, r.CNAMEValue))
 	}
 
 	return records, nil
@@ -67,7 +68,7 @@ func ParseDNSLabelGroups(labels map[string]string, parser *DNSLabelParser, defau
 
 	groups := make(map[string]DNSLabelGroup)
 
-	for _, key := range Keys(labels) {
+	for key, _ := range labels {
 		if !parser.pattern.MatchString(key) {
 			continue
 		}

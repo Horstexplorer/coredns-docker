@@ -1,4 +1,4 @@
-package coredns_docker
+package docker
 
 import (
 	"net"

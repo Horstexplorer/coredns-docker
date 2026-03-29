@@ -1,4 +1,4 @@
-package coredns_docker
+package docker
 
 import (
 	"context"
@@ -7,24 +7,24 @@ import (
 	"github.com/moby/moby/client"
 )
 
-type DockerService struct {
+type DockerApiUtil struct {
 	ctx context.Context
 	api *client.Client
 }
 
-func NewDockerService() (*DockerService, error) {
+func NewDockerService() (*DockerApiUtil, error) {
 	api, err := client.New(client.FromEnv) // todo: verify this is a good default
 	if err != nil {
 		return nil, err
 	}
 
-	return &DockerService{
+	return &DockerApiUtil{
 		ctx: context.Background(),
 		api: api,
 	}, nil
 }
 
-func (i *DockerService) ListAllContainers() ([]container.Summary, error) {
+func (i *DockerApiUtil) ListAllContainers() ([]container.Summary, error) {
 	containers, err := i.api.ContainerList(i.ctx, client.ContainerListOptions{
 		All: true,
 	})
